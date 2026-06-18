@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+reports/
+data/
+fyersApi.log
+fyersRequests.log
+nul
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Fyers credentials (never commit the real file)
+config/fyers_creds.json

@@ -1,0 +1,15 @@
+base_config: reports/optimization/traffic_light_best_config.yaml
+
+optimize:
+  maximize: "Equity Final [$]"
+
+  parameters:
+    # Hold all other params fixed at the optimized values.
+    # Sweep only the trailing stop activation/lock to find the optimal gap width.
+    trailing_activation_points: [30, 40, 50, 60, 70, 80]
+    trailing_lock_points: [10, 20, 30, 40, 50, 60]
+
+  constraints:
+    min_trades: 30
+    # lock_points must be less than activation_points (gap must be positive)
+    tsl_gap_positive: "trailing_lock_points < trailing_activation_points"

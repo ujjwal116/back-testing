@@ -1,0 +1,58 @@
+data:
+  file: ../data/NIFTY_5_2025-06-13_2026-06-13.csv
+  datetime_column: datetime
+  source_timezone: UTC
+  market_timezone: Asia/Kolkata
+  start_date: '2025-06-13'
+  end_date: '2026-06-13'
+  columns:
+    open: open
+    high: high
+    low: low
+    close: close
+    volume: volume
+backtest:
+  cash: 100000
+  commission: 0
+  trade_on_close: false
+  exclusive_orders: false
+  finalize_trades: true
+strategy:
+  name: traffic_light
+trading:
+  trading_start_time: 09:15
+  trading_end_time: '13:00'
+  force_square_off: true
+  square_off_time: '15:15'
+  max_trades_per_day: 3
+  stop_after_first_profit: true
+risk:
+  position_size:
+    value: 1
+  stop_loss:
+    method: fixed_or_signal_candle_tighter
+    value: 20
+    atr_multiplier: 1.5
+  take_profit:
+    method: none
+    value: null
+  trailing_stop:
+    enabled: true
+    method: activation_lock
+    value: null
+    activation_points: 50
+    lock_points: 40
+    atr_multiplier: 2.0
+indicators:
+  atr:
+    period: 14
+strategy_params:
+  signal_expiry_candles: 20
+  entry_buffer_points: 5
+  allow_long: true
+  allow_short: true
+reporting:
+  output_dir: reports
+  save_trades: true
+  save_monthly_summary: true
+  save_plot: true

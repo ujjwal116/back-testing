@@ -1,0 +1,16 @@
+base_config: configs/traffic_light.yaml
+
+optimize:
+  maximize: "Equity Final [$]"
+
+  parameters:
+    # Stop loss room — biggest lever on NIFTY 5-min
+    stop_loss_value: [15, 20, 28, 35]
+    # Trailing: activate after this many points of profit
+    trailing_activation_points: [40, 60, 80]
+    # Lock in this many points when trailing activates (must be < activation)
+    trailing_lock_points: [20, 30]
+
+  constraints:
+    min_trades: 50
+    tsl_gap_positive: true   # lock_points must be < activation_points
