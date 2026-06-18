@@ -208,6 +208,10 @@ def _check_price_path(
       - trade: updated open trade (or new trade if order filled)
       - order: remaining order (None if filled or irrelevant)
       - closed_trade: trade object if it closed at this price point
+
+    sig_high/sig_low arguments are kept for API compatibility but are
+    IGNORED for SL calculation — the order carries its own sig_high/sig_low
+    so the bracket calc is immune to later state-variable clearing.
     """
     closed_trade = None
 
@@ -262,9 +266,10 @@ def _check_price_path(
                 (order.is_short() and bar_open <= order.stop_price)
             ) else fill
 
+            # Use signal bounds stored on the order — immune to state clearing
             sl = _calc_sl(
                 order.direction, actual_fill,
-                sig_high or 0, sig_low or 0,
+                order.sig_high, order.sig_low,
                 sl_config.get("method", "fixed_points"),
                 float(sl_config.get("value") or 20),
             )
@@ -509,12 +514,16 @@ class CandlePathEngine:
                                 direction=Direction.LONG,
                                 stop_price=long_stop,
                                 sl=None, tp=None,
+                                sig_high=sig_high,
+                                sig_low=sig_low,
                             )
                         if self.allow_short:
                             short_order = Order(
                                 direction=Direction.SHORT,
                                 stop_price=short_stop,
                                 sl=None, tp=None,
+                                sig_high=sig_high,
+                                sig_low=sig_low,
                             )
 
             equity_curve.append(cash + (trade.pnl() if trade and trade.is_open() else 0))

@@ -23,6 +23,10 @@ class Order:
     stop_price: float           # trigger price
     sl:         Optional[float] # initial stop-loss
     tp:         Optional[float] # take-profit (None = no TP)
+    # Signal candle bounds — stored at creation so SL calc is self-contained
+    # and cannot be corrupted by later state changes (end_time clear, etc.)
+    sig_high:   float = 0.0
+    sig_low:    float = 0.0
     created_at: datetime = field(default_factory=datetime.now)
 
     def is_long(self)  -> bool: return self.direction == Direction.LONG
