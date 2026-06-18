@@ -145,7 +145,7 @@ def _run_tag(config: dict[str, Any]) -> str:
     return f"buf{buf}--{sl_tag}--{tp_tag}{ts_tag}--sap{sap}-mtd{mtd}--{date_tag}"
 
 
-def save_reports(config: dict[str, Any], stats: pd.Series, bt=None) -> dict[str, Path]:
+def save_reports(config: dict[str, Any], stats: pd.Series, bt=None, trades_override: pd.DataFrame | None = None) -> dict[str, Path]:
     reporting     = config.get("reporting", {})
     base_dir      = Path(reporting.get("output_dir", "reports"))
     strategy_name = config.get("strategy", {}).get("name", "strategy")
@@ -164,20 +164,24 @@ def save_reports(config: dict[str, Any], stats: pd.Series, bt=None) -> dict[str,
 
     paths: dict[str, Path] = {}
 
-    trades = _add_pnl_points(stats.get("_trades", pd.DataFrame()).copy())
+    # Use trades_override if provided (custom engine), else extract from stats
+    if trades_override is not None:
+        trades = trades_override.copy()
+        if "PnL [pts]" not in trades.columns and "PnL" in trades.columns:
+            trades["PnL [pts]"] = trades["PnL"]
+    else:
+        trades = _add_pnl_points(stats.get("_trades", pd.DataFrame()).copy())
 
     # Augment summary with points-based metrics derived from trades.
     summary = {key: stats[key] for key in SUMMARY_KEYS if key in stats.index}
-    if not trades.empty and "PnL [pts]" in trades.columns:
-        pts = trades["PnL [pts]"]
-        summary["Winning Trades"]       = int((pts > 0).sum())
-        summary["Losing Trades"]        = int((pts < 0).sum())
-        summary["Net Profit [pts]"]     = round(pts.sum(), 2)
-        summary["Gross Profit [pts]"]   = round(pts[pts > 0].sum(), 2)
-        summary["Gross Loss [pts]"]     = round(pts[pts < 0].sum(), 2)
-        summary["Avg Trade [pts]"]      = round(pts.mean(), 2)
-        summary["Best Trade [pts]"]     = round(pts.max(), 2)
-        summary["Worst Trade [pts]"]    = round(pts.min(), 2)
+    # For custom engine stats, also pull extra keys it provides directly
+    extra_keys = ["Winning Trades", "Losing Trades", "Net Profit [pts]",
+                  "Gross Profit [pts]", "Gross Loss [pts]", "Avg Trade [pts]",
+                  "Best Trade [pts]", "Worst Trade [pts]", "Sharpe Ratio",
+                  "Max. Drawdown [%]", "SQN", "Profit Factor"]
+    for k in extra_keys:
+        if k in stats.index and k not in summary:
+            summary[k] = stats[k]
 
     summary_path = run_dir / "summary.csv"
     pd.Series(summary, name="value").to_csv(summary_path)
