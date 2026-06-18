@@ -1,0 +1,18 @@
+base_config: configs/traffic_light_4yr.yaml
+
+optimize:
+  maximize: "Net Profit [pts]"
+
+  parameters:
+    # Entry buffer
+    entry_buffer_points: [0, 5, 10]
+    # Stop loss
+    stop_loss_value: [15, 20, 25, 30]
+    # TSL activation threshold
+    trailing_activation_points: [30, 40, 50, 60, 80]
+    # TSL lock-in points (must be < activation)
+    trailing_lock_points: [10, 20, 30, 40]
+
+  constraints:
+    min_trades: 100
+    tsl_gap_positive: true   # lock_points < activation_points
