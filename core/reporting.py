@@ -145,7 +145,7 @@ def _run_tag(config: dict[str, Any]) -> str:
     return f"buf{buf}--{sl_tag}--{tp_tag}{ts_tag}--sap{sap}-mtd{mtd}--{date_tag}"
 
 
-def save_reports(config: dict[str, Any], stats: pd.Series, bt=None, trades_override: pd.DataFrame | None = None) -> dict[str, Path]:
+def save_reports(config: dict[str, Any], stats: pd.Series, bt=None, trades_override: pd.DataFrame | None = None, engine: str = "backtesting") -> dict[str, Path]:
     reporting     = config.get("reporting", {})
     base_dir      = Path(reporting.get("output_dir", "reports"))
     strategy_name = config.get("strategy", {}).get("name", "strategy")
@@ -158,8 +158,8 @@ def save_reports(config: dict[str, Any], stats: pd.Series, bt=None, trades_overr
     trailing   = config.get("risk", {}).get("trailing_stop", {})
     sl_mode    = "TSL" if trailing.get("enabled") else "FSL"
 
-    # reports/<symbol>/<timeframe>/<strategy>/FSL|TSL/<run_tag>/
-    run_dir = base_dir / symbol / tf_label / strategy_name / sl_mode / tag
+    # reports/<symbol>/<timeframe>/<strategy>/FSL|TSL/<engine>/<run_tag>/
+    run_dir = base_dir / symbol / tf_label / strategy_name / sl_mode / engine / tag
     run_dir.mkdir(parents=True, exist_ok=True)
 
     paths: dict[str, Path] = {}

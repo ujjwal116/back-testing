@@ -27,11 +27,11 @@ def main() -> None:
         engine.run()
         stats  = engine.get_stats()
         trades = engine.get_trades_df()
-        paths  = save_reports(config, stats, bt=None, trades_override=trades)
+        paths  = save_reports(config, stats, bt=None, trades_override=trades, engine="candle_path")
         print(stats.to_string())
     else:
         bt, stats = run_backtest(config)
-        paths = save_reports(config, stats, bt)
+        paths = save_reports(config, stats, bt, engine="backtesting")
         print(stats)
 
     run_dir = paths.get("summary", next(iter(paths.values()))).parent.resolve()
